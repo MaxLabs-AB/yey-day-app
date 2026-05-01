@@ -6,7 +6,7 @@
     <meta name="description" content="A daily check-in app to help you reflect on your day">
     <title>yey-day - Daily Check-in</title>
     <style>
-        /* CSS Reset and Base Styles */
+        /* CSS Reset & Base */
         * {
             margin: 0;
             padding: 0;
@@ -15,274 +15,263 @@
 
         :root {
             /* Mobile-first spacing */
-            --spacing-xs: 8px;
-            --spacing-sm: 12px;
-            --spacing-md: 16px;
-            --spacing-lg: 24px;
-            --spacing-xl: 32px;
-            
-            /* Touch-friendly sizes */
+            --container-padding: 20px;
+            --header-spacing: 24px;
             --button-size: 60px;
             --button-gap: 12px;
+            --font-size-title: 24px;
+            --font-size-subtitle: 14px;
+            --font-size-question: 18px;
+            --font-size-button: 32px;
+            --font-size-message: 16px;
+            --font-size-footer: 14px;
             
-            /* Message area fixed height to prevent layout shift */
-            --message-area-height: 80px;
+            /* Fixed height for message area to prevent layout shift */
+            --message-area-min-height: 80px;
             
             /* Colors */
             --bg-gradient-start: #667eea;
             --bg-gradient-end: #764ba2;
             --text-color: #ffffff;
             --button-bg: rgba(255, 255, 255, 0.2);
-            --button-hover: rgba(255, 255, 255, 0.3);
-            --button-active: rgba(255, 255, 255, 0.4);
-            --shadow: rgba(0, 0, 0, 0.2);
+            --button-hover-bg: rgba(255, 255, 255, 0.3);
+            --button-active-bg: rgba(255, 255, 255, 0.4);
+            --backdrop-filter: blur(10px);
+        }
+
+        /* Tablet breakpoint */
+        @media (min-width: 768px) {
+            :root {
+                --container-padding: 40px;
+                --header-spacing: 32px;
+                --button-size: 70px;
+                --button-gap: 16px;
+                --font-size-title: 32px;
+                --font-size-subtitle: 16px;
+                --font-size-question: 22px;
+                --font-size-button: 36px;
+                --font-size-message: 18px;
+                --font-size-footer: 16px;
+                --message-area-min-height: 90px;
+            }
+        }
+
+        /* Desktop breakpoint */
+        @media (min-width: 1024px) {
+            :root {
+                --container-padding: 60px;
+                --header-spacing: 40px;
+                --button-size: 80px;
+                --button-gap: 20px;
+                --font-size-title: 40px;
+                --font-size-subtitle: 18px;
+                --font-size-question: 24px;
+                --font-size-button: 40px;
+                --font-size-message: 20px;
+                --message-area-min-height: 100px;
+            }
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: var(--spacing-md);
             color: var(--text-color);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--container-padding);
+            
+            /* Prevent text selection and tap highlights on mobile */
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
         }
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 600px;
             text-align: center;
         }
 
+        .header {
+            margin-bottom: var(--header-spacing);
+        }
+
         h1 {
-            font-size: 28px;
+            font-size: var(--font-size-title);
             font-weight: 700;
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 12px;
             line-height: 1.2;
         }
 
         .subtitle {
-            font-size: 16px;
+            font-size: var(--font-size-subtitle);
             opacity: 0.9;
-            margin-bottom: var(--spacing-xl);
+            margin-bottom: 24px;
             line-height: 1.5;
         }
 
         .question {
-            font-size: 20px;
+            font-size: var(--font-size-question);
             font-weight: 600;
-            margin-bottom: var(--spacing-lg);
+            opacity: 0.95;
             line-height: 1.4;
         }
 
-        .emoji-buttons {
+        .button-container {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: var(--button-gap);
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: 24px;
             flex-wrap: wrap;
         }
 
-        .emoji-button {
-            /* Touch-friendly button size (min 44x44px recommended) */
+        .status-button {
             width: var(--button-size);
             height: var(--button-size);
+            min-width: var(--button-size);
+            min-height: var(--button-size);
+            font-size: var(--font-size-button);
             border: none;
             border-radius: 50%;
             background: var(--button-bg);
-            backdrop-filter: blur(10px);
-            font-size: 28px;
+            backdrop-filter: var(--backdrop-filter);
+            -webkit-backdrop-filter: var(--backdrop-filter);
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px var(--shadow);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* Prevent text selection on tap */
+            padding: 0;
+            
+            /* Better touch target */
             -webkit-user-select: none;
             user-select: none;
-            /* Better tap handling on mobile */
-            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
-        .emoji-button:hover {
-            background: var(--button-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px var(--shadow);
+        /* Hover effect (desktop only) */
+        @media (hover: hover) and (pointer: fine) {
+            .status-button:hover {
+                background: var(--button-hover-bg);
+                transform: scale(1.1);
+            }
         }
 
-        .emoji-button:active {
-            background: var(--button-active);
-            transform: translateY(0);
-            box-shadow: 0 2px 8px var(--shadow);
+        .status-button:active {
+            background: var(--button-active-bg);
+            transform: scale(0.95);
         }
 
-        .emoji-button:focus {
+        .status-button:focus {
             outline: 3px solid rgba(255, 255, 255, 0.5);
-            outline-offset: 2px;
+            outline-offset: 4px;
         }
 
-        /* Fixed height message area to prevent layout shift */
+        .status-button:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        /* Message area with FIXED minimum height to prevent layout shift */
         .message-area {
-            min-height: var(--message-area-height);
+            min-height: var(--message-area-min-height);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: var(--spacing-md);
+            padding: 0 20px;
         }
 
-        .thank-you-message {
-            font-size: 18px;
-            font-weight: 500;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: 16px;
-            box-shadow: 0 4px 12px var(--shadow);
-            /* Smooth entrance animation */
-            animation: fadeInUp 0.4s ease-out;
+        .message {
+            font-size: var(--font-size-message);
             line-height: 1.5;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .footer {
-            margin-top: var(--spacing-xl);
-            font-size: 14px;
+            margin-top: 32px;
+            font-size: var(--font-size-footer);
             opacity: 0.7;
         }
 
-        /* Tablet and larger screens */
-        @media (min-width: 768px) {
-            :root {
-                --spacing-md: 20px;
-                --spacing-lg: 32px;
-                --spacing-xl: 48px;
-                --button-size: 70px;
-                --button-gap: 16px;
-                --message-area-height: 100px;
-            }
-
-            h1 {
-                font-size: 36px;
-            }
-
-            .subtitle {
-                font-size: 18px;
-            }
-
-            .question {
-                font-size: 24px;
-            }
-
-            .emoji-button {
-                font-size: 32px;
-            }
-
-            .thank-you-message {
-                font-size: 20px;
-                padding: var(--spacing-lg) var(--spacing-xl);
-            }
-
-            .footer {
-                font-size: 16px;
-            }
-        }
-
-        /* Desktop and larger screens */
-        @media (min-width: 1024px) {
-            :root {
-                --button-size: 80px;
-                --button-gap: 20px;
-            }
-
-            h1 {
-                font-size: 42px;
-            }
-
-            .emoji-button {
-                font-size: 36px;
-            }
-
-            .emoji-button:hover {
-                transform: translateY(-4px);
-            }
-        }
-
-        /* Reduce motion for accessibility */
+        /* Accessibility: Reduce motion for users who prefer it */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
+            
+            .status-button:hover,
+            .status-button:active {
+                transform: none;
+            }
         }
 
         /* High contrast mode support */
         @media (prefers-contrast: high) {
-            .emoji-button {
+            .status-button {
                 border: 2px solid var(--text-color);
+            }
+            
+            .status-button:focus {
+                outline: 3px solid var(--text-color);
             }
         }
 
-        /* Dark mode support (if needed in future) */
-        @media (prefers-color-scheme: dark) {
-            /* Already dark by default, but this is here for future enhancements */
+        /* Screen reader only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="header">
             <h1>✨ yey-day</h1>
             <p class="subtitle">Your daily moment of reflection</p>
+            <p class="question">How was your day?</p>
         </header>
-
+        
         <main>
-            <div class="question">How was your day?</div>
-            
-            <div class="emoji-buttons" role="group" aria-label="Rate your day">
-                <button class="emoji-button" 
-                        onclick="handleStatusClick('amazing')" 
-                        aria-label="Amazing day"
-                        type="button">
-                    😄
+            <div class="button-container" role="group" aria-label="Rate your day">
+                <button class="status-button" onclick="handleStatus('😄', 'amazing')" aria-label="Amazing day" type="button">
+                    <span aria-hidden="true">😄</span>
                 </button>
-                <button class="emoji-button" 
-                        onclick="handleStatusClick('good')" 
-                        aria-label="Good day"
-                        type="button">
-                    🙂
+                <button class="status-button" onclick="handleStatus('🙂', 'good')" aria-label="Good day" type="button">
+                    <span aria-hidden="true">🙂</span>
                 </button>
-                <button class="emoji-button" 
-                        onclick="handleStatusClick('okay')" 
-                        aria-label="Okay day"
-                        type="button">
-                    😐
+                <button class="status-button" onclick="handleStatus('😐', 'okay')" aria-label="Okay day" type="button">
+                    <span aria-hidden="true">😐</span>
                 </button>
-                <button class="emoji-button" 
-                        onclick="handleStatusClick('bad')" 
-                        aria-label="Bad day"
-                        type="button">
-                    😔
+                <button class="status-button" onclick="handleStatus('😔', 'bad')" aria-label="Bad day" type="button">
+                    <span aria-hidden="true">😔</span>
                 </button>
             </div>
-
-            <!-- Fixed height area to prevent layout shift -->
-            <div class="message-area" id="messageArea" role="status" aria-live="polite">
-                <!-- Thank you message will appear here -->
+            
+            <!-- Fixed height message area to prevent layout shift -->
+            <div class="message-area" role="status" aria-live="polite">
+                <p id="message" class="message"></p>
             </div>
         </main>
 
@@ -292,58 +281,58 @@
     </div>
 
     <script>
-        // Status messages for each emotion
-        const statusMessages = {
-            amazing: "That's wonderful! Keep that positive energy! 🌟",
-            good: "Glad to hear it! Tomorrow will be great too! 🌈",
-            okay: "That's okay! Every day is a new opportunity 🌱",
-            bad: "Sorry to hear that. Tomorrow is a fresh start 🌅"
-        };
-
-        function handleStatusClick(status) {
-            const messageArea = document.getElementById('messageArea');
-            const message = statusMessages[status] || "Thanks for checking in! 💙";
-            
-            // Clear any existing message first
-            messageArea.innerHTML = '';
-            
-            // Use a small delay to ensure smooth animation
-            setTimeout(() => {
-                messageArea.innerHTML = `<div class="thank-you-message">${message}</div>`;
-            }, 50);
-            
-            // Store the status (could be used for future features like tracking)
-            localStorage.setItem('lastCheckIn', JSON.stringify({
-                status: status,
-                date: new Date().toISOString()
-            }));
-            
-            // Optional: Log for analytics (in a real app, you'd send this to a backend)
-            console.log('Check-in recorded:', status);
-        }
-
-        // Optional: Check if user already checked in today
-        function checkPreviousCheckIn() {
-            const lastCheckIn = localStorage.getItem('lastCheckIn');
-            if (lastCheckIn) {
-                try {
-                    const data = JSON.parse(lastCheckIn);
-                    const lastDate = new Date(data.date);
-                    const today = new Date();
-                    
-                    // If checked in today, show a welcome back message
-                    if (lastDate.toDateString() === today.toDateString()) {
-                        const messageArea = document.getElementById('messageArea');
-                        messageArea.innerHTML = '<div class="thank-you-message">Welcome back! Feel free to update your check-in 🌟</div>';
-                    }
-                } catch (e) {
-                    console.log('Could not parse previous check-in data');
+        function handleStatus(emoji, status) {
+            try {
+                const today = new Date().toDateString();
+                const lastCheckIn = localStorage.getItem('lastCheckIn');
+                const messageEl = document.getElementById('message');
+                
+                let message;
+                
+                if (lastCheckIn === today) {
+                    message = `Welcome back! Your earlier check-in: ${emoji}`;
+                } else {
+                    message = `Thanks for checking in! ${emoji}`;
+                    localStorage.setItem('lastCheckIn', today);
+                    localStorage.setItem('lastStatus', emoji);
                 }
+                
+                // Remove the show class to reset animation
+                messageEl.classList.remove('show');
+                
+                // Force reflow to restart animation
+                messageEl.offsetHeight;
+                
+                // Update message and show it
+                messageEl.textContent = message;
+                messageEl.classList.add('show');
+            } catch (error) {
+                // Fallback if localStorage fails
+                console.warn('localStorage not available:', error);
+                const messageEl = document.getElementById('message');
+                messageEl.classList.remove('show');
+                messageEl.offsetHeight;
+                messageEl.textContent = `Thanks for checking in! ${emoji}`;
+                messageEl.classList.add('show');
             }
         }
 
-        // Check on page load
-        document.addEventListener('DOMContentLoaded', checkPreviousCheckIn);
+        // Check if user already checked in today on page load
+        (function() {
+            try {
+                const today = new Date().toDateString();
+                const lastCheckIn = localStorage.getItem('lastCheckIn');
+                const lastStatus = localStorage.getItem('lastStatus');
+                
+                if (lastCheckIn === today && lastStatus) {
+                    const messageEl = document.getElementById('message');
+                    messageEl.textContent = `Welcome back! Your check-in today: ${lastStatus}`;
+                    messageEl.classList.add('show');
+                }
+            } catch (error) {
+                console.warn('localStorage not available:', error);
+            }
+        })();
     </script>
 </body>
 </html>
