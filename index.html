@@ -3,235 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A daily check-in app to help you reflect on your day">
+    <meta name="description" content="Daily mood check-in tracker">
     <title>yey-day - Daily Check-in</title>
     <style>
         /* CSS Reset & Base */
-        * {
+        *, *::before, *::after {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
+        /* CSS Custom Properties - Mobile First */
         :root {
-            /* Mobile-first spacing */
-            --container-padding: 20px;
-            --header-spacing: 24px;
-            --button-size: 60px;
-            --button-gap: 12px;
-            --font-size-title: 24px;
-            --font-size-subtitle: 14px;
-            --font-size-question: 18px;
-            --font-size-button: 32px;
-            --font-size-message: 16px;
-            --font-size-footer: 14px;
-            
-            /* Fixed height for message area to prevent layout shift */
-            --message-area-min-height: 80px;
-            
             /* Colors */
             --bg-gradient-start: #667eea;
             --bg-gradient-end: #764ba2;
-            --text-color: #ffffff;
-            --button-bg: rgba(255, 255, 255, 0.2);
-            --button-hover-bg: rgba(255, 255, 255, 0.3);
-            --button-active-bg: rgba(255, 255, 255, 0.4);
-            --backdrop-filter: blur(10px);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --button-bg: #f7fafc;
+            --button-hover: #edf2f7;
+            --button-active: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success-color: #48bb78;
+            --error-color: #f56565;
+            
+            /* Spacing - Mobile First */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 2.5rem;
+            
+            /* Typography - Mobile First */
+            --font-size-base: 1rem;
+            --font-size-large: 1.125rem;
+            --font-size-xlarge: 1.5rem;
+            --font-size-xxlarge: 2rem;
+            --line-height: 1.5;
+            
+            /* Component Sizes - Mobile First */
+            --button-size: 60px;
+            --button-font-size: 2rem;
+            --button-gap: 0.75rem;
+            --card-padding: var(--spacing-md);
+            --card-max-width: 100%;
+            --card-border-radius: 1rem;
+            
+            /* Message Area - Fixed height to prevent layout shift */
+            --message-area-height: 100px;
+            
+            /* Animation */
+            --transition-speed: 0.3s;
         }
 
-        /* Tablet breakpoint */
+        /* Tablet - 768px and up */
         @media (min-width: 768px) {
             :root {
-                --container-padding: 40px;
-                --header-spacing: 32px;
+                --spacing-lg: 2.5rem;
+                --spacing-xl: 3rem;
+                --font-size-xlarge: 1.75rem;
+                --font-size-xxlarge: 2.25rem;
                 --button-size: 70px;
-                --button-gap: 16px;
-                --font-size-title: 32px;
-                --font-size-subtitle: 16px;
-                --font-size-question: 22px;
-                --font-size-button: 36px;
-                --font-size-message: 18px;
-                --font-size-footer: 16px;
-                --message-area-min-height: 90px;
+                --button-font-size: 2.25rem;
+                --button-gap: 1rem;
+                --card-padding: var(--spacing-lg);
+                --card-max-width: 600px;
+                --message-area-height: 110px;
             }
         }
 
-        /* Desktop breakpoint */
+        /* Desktop - 1024px and up */
         @media (min-width: 1024px) {
             :root {
-                --container-padding: 60px;
-                --header-spacing: 40px;
+                --spacing-xl: 3.5rem;
+                --font-size-xxlarge: 2.5rem;
                 --button-size: 80px;
-                --button-gap: 20px;
-                --font-size-title: 40px;
-                --font-size-subtitle: 18px;
-                --font-size-question: 24px;
-                --font-size-button: 40px;
-                --font-size-message: 20px;
-                --message-area-min-height: 100px;
+                --button-font-size: 2.5rem;
+                --button-gap: 1.25rem;
+                --card-padding: var(--spacing-xl);
+                --card-max-width: 600px;
+                --message-area-height: 120px;
             }
         }
 
+        /* Body - Allows scrolling when content overflows */
         html, body {
             height: 100%;
             overflow-x: hidden;
+            overflow-y: auto;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: var(--font-size-base);
+            line-height: var(--line-height);
+            color: var(--text-primary);
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: var(--container-padding);
-            
-            /* Prevent text selection and tap highlights on mobile */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            /* Disable tap highlight on mobile */
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
         }
 
+        /* Main Container - Flexbox for vertical centering */
         .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: var(--spacing-sm);
             width: 100%;
-            max-width: 600px;
+        }
+
+        /* Card - Flexbox for internal layout */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 20px 25px -5px var(--shadow), 0 10px 10px -5px var(--shadow);
+            padding: var(--card-padding);
+            width: 100%;
+            max-width: var(--card-max-width);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        /* Header */
+        .header {
             text-align: center;
         }
 
-        .header {
-            margin-bottom: var(--header-spacing);
-        }
-
-        h1 {
-            font-size: var(--font-size-title);
+        .header h1 {
+            font-size: var(--font-size-xxlarge);
             font-weight: 700;
-            margin-bottom: 12px;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
             line-height: 1.2;
         }
 
-        .subtitle {
-            font-size: var(--font-size-subtitle);
-            opacity: 0.9;
-            margin-bottom: 24px;
-            line-height: 1.5;
+        .header p {
+            font-size: var(--font-size-large);
+            color: var(--text-secondary);
+            margin: 0;
         }
 
-        .question {
-            font-size: var(--font-size-question);
+        .header .subtitle {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        /* Status Section - Flexbox for layout */
+        .status-section {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .status-label {
+            font-size: var(--font-size-large);
             font-weight: 600;
-            opacity: 0.95;
-            line-height: 1.4;
+            color: var(--text-primary);
+            text-align: center;
         }
 
+        /* Button Container - Flexbox for responsive wrapping */
         .button-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: var(--button-gap);
-            margin-bottom: 24px;
             flex-wrap: wrap;
+            gap: var(--button-gap);
+            width: 100%;
         }
 
+        /* Status Buttons - Disable user-select only on buttons */
         .status-button {
             width: var(--button-size);
             height: var(--button-size);
-            min-width: var(--button-size);
-            min-height: var(--button-size);
-            font-size: var(--font-size-button);
             border: none;
             border-radius: 50%;
             background: var(--button-bg);
-            backdrop-filter: var(--backdrop-filter);
-            -webkit-backdrop-filter: var(--backdrop-filter);
+            font-size: var(--button-font-size);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 0 2px 4px var(--shadow);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0;
-            
-            /* Better touch target */
+            /* Mobile optimizations */
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            /* Disable selection only on interactive elements */
             -webkit-user-select: none;
             user-select: none;
-            touch-action: manipulation;
+            /* Accessibility */
+            position: relative;
         }
 
-        /* Hover effect (desktop only) */
-        @media (hover: hover) and (pointer: fine) {
-            .status-button:hover {
-                background: var(--button-hover-bg);
-                transform: scale(1.1);
+        .status-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Hover effects only on devices that support hover */
+        @media (hover: hover) {
+            .status-button:not(.disabled):hover {
+                background: var(--button-hover);
+                transform: translateY(-2px) scale(1.05);
+                box-shadow: 0 4px 8px var(--shadow);
             }
         }
 
-        .status-button:active {
-            background: var(--button-active-bg);
-            transform: scale(0.95);
+        .status-button:not(.disabled):active {
+            background: var(--button-active);
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 1px 2px var(--shadow);
         }
 
-        .status-button:focus {
-            outline: 3px solid rgba(255, 255, 255, 0.5);
-            outline-offset: 4px;
+        .status-button:focus-visible {
+            outline: 3px solid var(--bg-gradient-start);
+            outline-offset: 2px;
         }
 
-        .status-button:focus:not(:focus-visible) {
-            outline: none;
-        }
-
-        /* Message area with FIXED minimum height to prevent layout shift */
+        /* Message Area - Fixed height to prevent layout shift */
         .message-area {
-            min-height: var(--message-area-min-height);
+            height: var(--message-area-height);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 20px;
+            text-align: center;
+            padding: var(--spacing-sm);
+            overflow: hidden;
         }
 
         .message {
-            font-size: var(--font-size-message);
-            line-height: 1.5;
+            font-size: var(--font-size-large);
+            font-weight: 600;
+            color: var(--success-color);
             opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .message.error {
+            color: var(--error-color);
         }
 
         .message.show {
             opacity: 1;
-            transform: translateY(0);
+            visibility: visible;
         }
 
+        /* Footer */
         .footer {
-            margin-top: 32px;
-            font-size: var(--font-size-footer);
-            opacity: 0.7;
+            margin-top: var(--spacing-md);
+            text-align: center;
+            font-size: var(--font-size-large);
+            color: var(--text-secondary);
+            opacity: 0.8;
         }
 
-        /* Accessibility: Reduce motion for users who prefer it */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            
-            .status-button:hover,
-            .status-button:active {
-                transform: none;
-            }
-        }
-
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-            .status-button {
-                border: 2px solid var(--text-color);
-            }
-            
-            .status-button:focus {
-                outline: 3px solid var(--text-color);
-            }
-        }
-
-        /* Screen reader only text */
+        /* Accessibility - Screen reader only text */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -243,96 +280,287 @@
             white-space: nowrap;
             border-width: 0;
         }
+
+        /* Reduced motion support - Completely disable animations */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .status-button {
+                border: 2px solid currentColor;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>✨ yey-day</h1>
-            <p class="subtitle">Your daily moment of reflection</p>
-            <p class="question">How was your day?</p>
-        </header>
-        
-        <main>
-            <div class="button-container" role="group" aria-label="Rate your day">
-                <button class="status-button" onclick="handleStatus('😄', 'amazing')" aria-label="Amazing day" type="button">
-                    <span aria-hidden="true">😄</span>
-                </button>
-                <button class="status-button" onclick="handleStatus('🙂', 'good')" aria-label="Good day" type="button">
-                    <span aria-hidden="true">🙂</span>
-                </button>
-                <button class="status-button" onclick="handleStatus('😐', 'okay')" aria-label="Okay day" type="button">
-                    <span aria-hidden="true">😐</span>
-                </button>
-                <button class="status-button" onclick="handleStatus('😔', 'bad')" aria-label="Bad day" type="button">
-                    <span aria-hidden="true">😔</span>
-                </button>
-            </div>
-            
-            <!-- Fixed height message area to prevent layout shift -->
-            <div class="message-area" role="status" aria-live="polite">
-                <p id="message" class="message"></p>
-            </div>
-        </main>
+        <div class="card">
+            <header class="header">
+                <h1>yey-day</h1>
+                <p class="subtitle">Daily Check-in</p>
+            </header>
 
-        <footer class="footer">
-            <p>Take a moment to reflect 💭</p>
-        </footer>
+            <section class="status-section">
+                <h2 class="status-label">How are you feeling today?</h2>
+                <div class="button-container" role="group" aria-label="Mood selection">
+                    <button class="status-button" data-status="great" aria-label="Great" title="Great">
+                        😄
+                    </button>
+                    <button class="status-button" data-status="good" aria-label="Good" title="Good">
+                        🙂
+                    </button>
+                    <button class="status-button" data-status="okay" aria-label="Okay" title="Okay">
+                        😐
+                    </button>
+                    <button class="status-button" data-status="bad" aria-label="Bad" title="Bad">
+                        😞
+                    </button>
+                    <button class="status-button" data-status="terrible" aria-label="Terrible" title="Terrible">
+                        😢
+                    </button>
+                </div>
+            </section>
+
+            <div class="message-area" role="status" aria-live="polite">
+                <p class="message" id="message"></p>
+            </div>
+
+            <footer class="footer">
+                <p>Track your mood, one day at a time</p>
+            </footer>
+        </div>
     </div>
 
     <script>
-        function handleStatus(emoji, status) {
+        // Storage keys
+        const STORAGE_KEY = 'yey-day-checkins';
+        const LEGACY_STORAGE_KEY = 'checkInStatus';
+        const LEGACY_LAST_CHECKIN_KEY = 'lastCheckIn';
+        const LEGACY_LAST_STATUS_KEY = 'lastStatus';
+
+        // Emoji mapping
+        const STATUS_EMOJI = {
+            'great': '😄',
+            'good': '🙂',
+            'okay': '😐',
+            'bad': '😞',
+            'terrible': '😢'
+        };
+
+        // Get current date in UTC as YYYY-MM-DD
+        function getTodayDateString() {
+            const now = new Date();
+            // Use UTC to ensure consistent date across timezones
+            const year = now.getUTCFullYear();
+            const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(now.getUTCDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Parse legacy date string to UTC Date
+        function parseLegacyDate(dateString) {
+            // Parse as UTC to maintain consistency
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(Date.UTC(year, month - 1, day));
+        }
+
+        // Load check-in data from localStorage
+        function loadCheckInData() {
             try {
-                const today = new Date().toDateString();
-                const lastCheckIn = localStorage.getItem('lastCheckIn');
-                const messageEl = document.getElementById('message');
-                
-                let message;
-                
-                if (lastCheckIn === today) {
-                    message = `Welcome back! Your earlier check-in: ${emoji}`;
-                } else {
-                    message = `Thanks for checking in! ${emoji}`;
-                    localStorage.setItem('lastCheckIn', today);
-                    localStorage.setItem('lastStatus', emoji);
-                }
-                
-                // Remove the show class to reset animation
-                messageEl.classList.remove('show');
-                
-                // Force reflow to restart animation
-                messageEl.offsetHeight;
-                
-                // Update message and show it
-                messageEl.textContent = message;
-                messageEl.classList.add('show');
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : {};
             } catch (error) {
-                // Fallback if localStorage fails
-                console.warn('localStorage not available:', error);
-                const messageEl = document.getElementById('message');
-                messageEl.classList.remove('show');
-                messageEl.offsetHeight;
-                messageEl.textContent = `Thanks for checking in! ${emoji}`;
-                messageEl.classList.add('show');
+                console.error('Error loading check-in data:', error);
+                return {};
             }
         }
 
-        // Check if user already checked in today on page load
-        (function() {
+        // Save check-in data to localStorage
+        function saveCheckInData(data) {
             try {
-                const today = new Date().toDateString();
-                const lastCheckIn = localStorage.getItem('lastCheckIn');
-                const lastStatus = localStorage.getItem('lastStatus');
-                
-                if (lastCheckIn === today && lastStatus) {
-                    const messageEl = document.getElementById('message');
-                    messageEl.textContent = `Welcome back! Your check-in today: ${lastStatus}`;
-                    messageEl.classList.add('show');
-                }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                return true;
             } catch (error) {
-                console.warn('localStorage not available:', error);
+                console.error('Error saving check-in data:', error);
+                showMessage('Sorry, unable to save your check-in. Please check your browser settings.', true);
+                return false;
             }
-        })();
+        }
+
+        // Migrate legacy data from old storage format
+        function migrateLegacyData() {
+            try {
+                const newData = loadCheckInData();
+                
+                // Check if we already have data in new format
+                if (Object.keys(newData).length > 0) {
+                    // Clean up old keys
+                    localStorage.removeItem(LEGACY_STORAGE_KEY);
+                    localStorage.removeItem(LEGACY_LAST_CHECKIN_KEY);
+                    localStorage.removeItem(LEGACY_LAST_STATUS_KEY);
+                    return;
+                }
+
+                // Migrate from old 'checkInStatus' format
+                const legacyCheckInStatus = localStorage.getItem(LEGACY_STORAGE_KEY);
+                if (legacyCheckInStatus) {
+                    try {
+                        const legacyData = JSON.parse(legacyCheckInStatus);
+                        // legacyData format: { "2024-01-15": "great", ... }
+                        for (const [dateStr, status] of Object.entries(legacyData)) {
+                            newData[dateStr] = {
+                                status: status,
+                                emoji: STATUS_EMOJI[status] || '😐',
+                                timestamp: parseLegacyDate(dateStr).toISOString()
+                            };
+                        }
+                    } catch (e) {
+                        console.error('Error migrating legacy checkInStatus:', e);
+                    }
+                }
+
+                // Migrate from old 'lastCheckIn' and 'lastStatus' format
+                const lastCheckIn = localStorage.getItem(LEGACY_LAST_CHECKIN_KEY);
+                const lastStatus = localStorage.getItem(LEGACY_LAST_STATUS_KEY);
+                
+                if (lastCheckIn && lastStatus) {
+                    // Find status key from emoji
+                    let statusKey = 'okay';
+                    for (const [key, emoji] of Object.entries(STATUS_EMOJI)) {
+                        if (emoji === lastStatus) {
+                            statusKey = key;
+                            break;
+                        }
+                    }
+                    
+                    // Only add if not already present
+                    if (!newData[lastCheckIn]) {
+                        newData[lastCheckIn] = {
+                            status: statusKey,
+                            emoji: lastStatus,
+                            timestamp: parseLegacyDate(lastCheckIn).toISOString()
+                        };
+                    }
+                }
+
+                // Save migrated data
+                if (Object.keys(newData).length > 0) {
+                    saveCheckInData(newData);
+                }
+
+                // Clean up old keys
+                localStorage.removeItem(LEGACY_STORAGE_KEY);
+                localStorage.removeItem(LEGACY_LAST_CHECKIN_KEY);
+                localStorage.removeItem(LEGACY_LAST_STATUS_KEY);
+            } catch (error) {
+                console.error('Error during migration:', error);
+            }
+        }
+
+        // Check if user has already checked in today
+        function hasCheckedInToday() {
+            const today = getTodayDateString();
+            const data = loadCheckInData();
+            return data.hasOwnProperty(today);
+        }
+
+        // Get today's check-in
+        function getTodayCheckIn() {
+            const today = getTodayDateString();
+            const data = loadCheckInData();
+            return data[today] || null;
+        }
+
+        // Save check-in
+        function saveCheckIn(status) {
+            const today = getTodayDateString();
+            const data = loadCheckInData();
+            
+            const emoji = STATUS_EMOJI[status] || '😐';
+            
+            data[today] = {
+                status: status,
+                emoji: emoji,
+                timestamp: new Date().toISOString()
+            };
+            
+            return saveCheckInData(data);
+        }
+
+        // Show message
+        function showMessage(text, isError = false) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.classList.toggle('error', isError);
+            messageEl.classList.remove('show');
+            
+            // Force reflow to restart animation
+            void messageEl.offsetWidth;
+            
+            messageEl.classList.add('show');
+        }
+
+        // Handle check-in
+        function handleCheckIn(status) {
+            const result = saveCheckIn(status);
+            
+            if (result) {
+                const emoji = STATUS_EMOJI[status] || '😐';
+                showMessage(`✅ Check-in saved! Today's mood: ${emoji}`);
+                disableButtons();
+            }
+            // Error message already shown by saveCheckInData if result is false
+        }
+
+        // Disable buttons after check-in
+        function disableButtons() {
+            const buttons = document.querySelectorAll('.status-button');
+            buttons.forEach(button => {
+                button.classList.add('disabled');
+                button.setAttribute('aria-disabled', 'true');
+            });
+        }
+
+        // Initialize app
+        function init() {
+            // Migrate legacy data
+            migrateLegacyData();
+
+            // Check if already checked in today
+            if (hasCheckedInToday()) {
+                const todayCheckIn = getTodayCheckIn();
+                if (todayCheckIn) {
+                    showMessage(`Welcome back! Your check-in today: ${todayCheckIn.emoji}`);
+                    disableButtons();
+                }
+            }
+
+            // Add event listeners to buttons
+            const buttons = document.querySelectorAll('.status-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!button.classList.contains('disabled')) {
+                        const status = button.getAttribute('data-status');
+                        handleCheckIn(status);
+                    }
+                });
+            });
+        }
+
+        // Run init when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
